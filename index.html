@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bouncy Taps</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        body {
+            overflow: hidden;
+            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+        }
+        
+        #uiContainer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        #scoreDisplay {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
+        }
+        
+        #comboDisplay {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+        }
+        
+        #timerDisplay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        #gameTitle {
+            color: #FFD700;
+            font-size: 48px;
+            margin-bottom: 30px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            animation: pulse 1.5s infinite;
+        }
+        
+        #startButton {
+            background-color: #FF6B6B;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            pointer-events: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        #startButton:active {
+            transform: scale(0.95);
+            background-color: #FF5252;
+        }
+        
+        #endScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        #finalScore {
+            color: white;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        
+        #restartButton {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            pointer-events: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        #restartButton:active {
+            transform: scale(0.95);
+            background-color: #388E3C;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .powerup-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="uiContainer">
+        <div id="scoreDisplay">0</div>
+        <div id="comboDisplay">Combo x1</div>
+        <div id="timerDisplay">60</div>
+        <div class="powerup-indicator" id="powerupIndicator">2X Multiplier Active!</div>
+    </div>
+    
+    <div id="startScreen">
+        <h1 id="gameTitle">Bouncy Taps!</h1>
+        <button id="startButton">Start Game</button>
+    </div>
+    
+    <div id="endScreen">
+        <h1>Game Over!</h1>
+        <div id="finalScore">Score: 0</div>
+        <button id="restartButton">Play Again</button>
+    </div>
+
+    <script>
+        // Game constants
+        const GAME_DURATION = 60; // 60 seconds
+        const TARGET_TYPES = [
+            { color: '#FF6B6B', score: 10, radius: 30 }, // Red
+            { color: '#4CAF50', score: 20, radius: 25 },  // Green
+            { color: '#2196F3', score: 30, radius: 20 },  // Blue
+            { color: '#FFD700', score: 50, radius: 15 }   // Gold
+        ];
+        
+        const POWERUP_TYPES = [
+            { color: '#9C27B0', radius: 20, effect: 'multiplier', duration: 10 }, // Purple
+            { color: '#FF9800', radius: 20, effect: 'slowmo', duration: 5 }       // Orange
+        ];
+        
+        const BOMB_TYPE = { color: '#333333', radius: 25, penalty: 5 }; // Black
+        
+        // Game variables
+        let canvas, ctx;
+        let gameWidth, gameHeight;
+        let score = 0;
+        let combo = 0;
+        let comboMultiplier = 1;
+        let gameTime = GAME_DURATION;
+        let isGameRunning = false;
+        let animationFrameId;
+        let lastTime = 0;
+        let timeSinceLastSpawn = 0;
+        let spawnInterval = 1.0;
+        let targets = [];
+        let powerups = [];
+        let bombs = [];
+        let activePowerups = {};
+        let particles = [];
+        
+        // DOM elements
+        let scoreDisplay, comboDisplay, timerDisplay;
+        let startScreen, endScreen, startButton, restartButton;
+        let finalScoreDisplay, powerupIndicator;
+        
+        // Initialize the game
+        function init() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Get UI elements
+            scoreDisplay = document.getElementById('scoreDisplay');
+            comboDisplay = document.getElementById('comboDisplay');
+            timerDisplay = document.getElementById('timerDisplay');
+            startScreen = document.getElementById('startScreen');
+            endScreen = document.getElementById('endScreen');
+            startButton = document.getElementById('startButton');
+            restartButton = document.getElementById('restartButton');
+            finalScoreDisplay = document.getElementById('finalScore');
+            powerupIndicator = document.getElementById('powerupIndicator');
+            
+            // Set up event listeners
+            startButton.addEventListener('click', startGame);
+            restartButton.addEventListener('click', restartGame);
+            canvas.addEventListener('touchstart', handleTap);
+            canvas.addEventListener('mousedown', handleTap);
+            
+            // Handle window resize
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+        }
+        
+        // Resize canvas to fit window
+        function resizeCanvas() {
+            gameWidth = window.innerWidth;
+            gameHeight = window.innerHeight;
+            
+            canvas.width = gameWidth;
+            canvas.height = gameHeight;
+            
+            // Redraw if game is running
+            if (isGameRunning) {
+                draw();
+            }
+        }
+        
+        // Start the game
+        function startGame() {
+            // Reset game state
+            score = 0;
+            combo = 0;
+            comboMultiplier = 1;
+            gameTime = GAME_DURATION;
+            targets = [];
+            powerups = [];
+            bombs = [];
+            activePowerups = {};
+            particles = [];
+            
+            // Update UI
+            scoreDisplay.textContent = '0';
+            comboDisplay.style.opacity = '0';
+            timerDisplay.textContent = gameTime;
+            
+            // Hide start screen
+            startScreen.style.display = 'none';
+            endScreen.style.display = 'none';
+            
+            // Start game loop
+            isGameRunning = true;
+            lastTime = performance.now();
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+        
+        // Restart the game
+        function restartGame() {
+            endScreen.style.display = 'none';
+            startGame();
+        }
+        
+        // End the game
+        function endGame() {
+            isGameRunning = false;
+            cancelAnimationFrame(animationFrameId);
+            
+            // Show end screen
+            finalScoreDisplay.textContent = `Score: ${score}`;
+            endScreen.style.display = 'flex';
+        }
+        
+        // Main game loop
+        function gameLoop(timestamp) {
+            if (!isGameRunning) return;
+            
+            // Calculate delta time
+            const deltaTime = (timestamp - lastTime) / 1000;
+            lastTime = timestamp;
+            
+            // Update game state
+            update(deltaTime);
+            
+            // Draw everything
+            draw();
+            
+            // Continue the loop
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+        
+        // Update game state
+        function update(deltaTime) {
+            // Update game timer
+            gameTime -= deltaTime;
+            timerDisplay.textContent = Math.max(0, Math.ceil(gameTime));
+            
+            // End game if time runs out
+            if (gameTime <= 0) {
+                endGame();
+                return;
+            }
+            
+            // Spawn new targets
+            timeSinceLastSpawn += deltaTime;
+            if (timeSinceLastSpawn >= spawnInterval) {
+                spawnObject();
+                timeSinceLastSpawn = 0;
+                
+                // Randomize next spawn interval (0.5 to 1.5 seconds)
+                spawnInterval = 0.5 + Math.random() * 1.0;
+            }
+            
+            // Update targets
+            for (let i = targets.length - 1; i >= 0; i--) {
+                const target = targets[i];
+                
+                // Apply gravity
+                target.velocityY += 500 * deltaTime;
+                
+                // Update position
+                target.x += target.velocityX * deltaTime;
+                target.y += target.velocityY * deltaTime;
+                
+                // Bounce off walls
+                if (target.x - target.radius < 0 || target.x + target.radius > gameWidth) {
+                    target.velocityX *= -0.8;
+                    target.x = Math.max(target.radius, Math.min(gameWidth - target.radius, target.x));
+                }
+                
+                // Bounce off floor
+                if (target.y + target.radius > gameHeight) {
+                    target.velocityY *= -0.8;
+                    target.y = gameHeight - target.radius;
+                    
+                    // Reduce bounce count
+                    target.bounces--;
+                    if (target.bounces <= 0) {
+                        targets.splice(i, 1);
+                        combo = 0;
+                        updateComboDisplay();
+                        continue;
+                    }
+                }
+                
+                // Apply air resistance
+                target.velocityX *= 0.99;
+                target.velocityY *= 0.99;
+            }
+            
+            // Update powerups
+            for (let i = powerups.length - 1; i >= 0; i--) {
+                const powerup = powerups[i];
+                
+                // Float upward
+                powerup.y -= 50 * deltaTime;
+                
+                // Remove if off screen
+                if (powerup.y + powerup.radius < 0) {
+                    powerups.splice(i, 1);
+                }
+            }
+            
+            // Update bombs
+            for (let i = bombs.length - 1; i >= 0; i--) {
+                const bomb = bombs[i];
+                
+                // Float upward
+                bomb.y -= 50 * deltaTime;
+                
+                // Remove if off screen
+                if (bomb.y + bomb.radius < 0) {
+                    bombs.splice(i, 1);
+                }
+            }
+            
+            // Update active powerups
+            for (const effect in activePowerups) {
+                activePowerups[effect].timeLeft -= deltaTime;
+                
+                if (activePowerups[effect].timeLeft <= 0) {
+                    // Powerup expired
+                    delete activePowerups[effect];
+                    
+                    // Update game state based on expired powerup
+                    if (effect === 'multiplier') {
+                        comboMultiplier = 1;
+                        powerupIndicator.style.opacity = '0';
+                    } else if (effect === 'slowmo') {
+                        // Reset to normal speed
+                    }
+                }
+            }
+            
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                
+                particle.x += particle.vx * deltaTime;
+                particle.y += particle.vy * deltaTime;
+                particle.life -= deltaTime;
+                
+                if (particle.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+        
+        // Draw everything
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, gameWidth, gameHeight);
+            
+            // Draw background gradient
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, gameHeight);
+            bgGradient.addColorStop(0, '#87CEEB');
+            bgGradient.addColorStop(1, '#E0F7FA');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, gameWidth, gameHeight);
+            
+            // Draw targets
+            targets.forEach(target => {
+                // Draw shadow
+                ctx.beginPath();
+                ctx.ellipse(
+                    target.x, 
+                    target.y + target.radius * 0.2 + 5, 
+                    target.radius * 0.8, 
+                    target.radius * 0.2, 
+                    0, 0, Math.PI * 2
+                );
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fill();
+                
+                // Draw main circle
+                ctx.beginPath();
+                ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2);
+                ctx.fillStyle = target.color;
+                ctx.fill();
+                
+                // Draw highlight
+                ctx.beginPath();
+                ctx.arc(
+                    target.x - target.radius * 0.3, 
+                    target.y - target.radius * 0.3, 
+                    target.radius * 0.2, 
+                    0, Math.PI * 2
+                );
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.fill();
+                
+                // Draw face if it's a character
+                if (target.type === 'character') {
+                    // Eyes
+                    ctx.beginPath();
+                    ctx.arc(
+                        target.x - target.radius * 0.3, 
+                        target.y - target.radius * 0.1, 
+                        target.radius * 0.1, 
+                        0, Math.PI * 2
+                    );
+                    ctx.arc(
+                        target.x + target.radius * 0.3, 
+                        target.y - target.radius * 0.1, 
+                        target.radius * 0.1, 
+                        0, Math.PI * 2
+                    );
+                    ctx.fillStyle = 'white';
+                    ctx.fill();
+                    
+                    // Pupils
+                    ctx.beginPath();
+                    ctx.arc(
+                        target.x - target.radius * 0.3, 
+                        target.y - target.radius * 0.1, 
+                        target.radius * 0.05, 
+                        0, Math.PI * 2
+                    );
+                    ctx.arc(
+                        target.x + target.radius * 0.3, 
+                        target.y - target.radius * 0.1, 
+                        target.radius * 0.05, 
+                        0, Math.PI * 2
+                    );
+                    ctx.fillStyle = 'black';
+                    ctx.fill();
+                    
+                    // Smile
+                    ctx.beginPath();
+                    ctx.arc(
+                        target.x, 
+                        target.y + target.radius * 0.2, 
+                        target.radius * 0.3, 
+                        0, Math.PI
+                    );
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = 'black';
+                    ctx.stroke();
+                }
+            });
+            
+            // Draw powerups
+            powerups.forEach(powerup => {
+                // Draw main circle
+                ctx.beginPath();
+                ctx.arc(powerup.x, powerup.y, powerup.radius, 0, Math.PI * 2);
+                ctx.fillStyle = powerup.color;
+                ctx.fill();
+                
+                // Draw highlight
+                ctx.beginPath();
+                ctx.arc(
+                    powerup.x - powerup.radius * 0.3, 
+                    powerup.y - powerup.radius * 0.3, 
+                    powerup.radius * 0.2, 
+                    0, Math.PI * 2
+                );
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.fill();
+                
+                // Draw icon based on powerup type
+                ctx.fillStyle = 'white';
+                ctx.font = `${powerup.radius * 1.2}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                if (powerup.effect === 'multiplier') {
+                    ctx.fillText('2X', powerup.x, powerup.y);
+                } else if (powerup.effect === 'slowmo') {
+                    ctx.fillText('⌛', powerup.x, powerup.y);
+                }
+            });
+            
+            // Draw bombs
+            bombs.forEach(bomb => {
+                // Draw main circle
+                ctx.beginPath();
+                ctx.arc(bomb.x, bomb.y, bomb.radius, 0, Math.PI * 2);
+                ctx.fillStyle = bomb.color;
+                ctx.fill();
+                
+                // Draw fuse
+                ctx.beginPath();
+                ctx.moveTo(bomb.x + bomb.radius * 0.7, bomb.y - bomb.radius * 0.7);
+                ctx.lineTo(bomb.x + bomb.radius * 1.2, bomb.y - bomb.radius * 1.2);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#795548';
+                ctx.stroke();
+                
+                // Draw danger symbol
+                ctx.fillStyle = 'white';
+                ctx.font = `${bomb.radius * 0.8}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('💣', bomb.x, bomb.y);
+            });
+            
+            // Draw particles
+            particles.forEach(particle => {
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fillStyle = particle.color;
+                ctx.globalAlpha = particle.life / particle.maxLife;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            });
+        }
+        
+        // Spawn a new target, powerup, or bomb
+        function spawnObject() {
+            const spawnChance = Math.random();
+            
+            if (spawnChance < 0.05) {
+                // Spawn a bomb (5% chance)
+                spawnBomb();
+            } else if (spawnChance < 0.15) {
+                // Spawn a powerup (10% chance)
+                spawnPowerup();
+            } else {
+                // Spawn a regular target (85% chance)
+                spawnTarget();
+            }
+        }
+        
+        // Spawn a regular target
+        function spawnTarget() {
+            const targetType = TARGET_TYPES[Math.floor(Math.random() * TARGET_TYPES.length)];
+            const radius = targetType.radius;
+            const x = radius + Math.random() * (gameWidth - radius * 2);
+            
+            targets.push({
+                x: x,
+                y: gameHeight + radius,
+                radius: radius,
+                color: targetType.color,
+                score: targetType.score,
+                velocityX: -100 + Math.random() * 200,
+                velocityY: -400 - Math.random() * 200,
+                bounces: 2 + Math.floor(Math.random() * 3),
+                type: Math.random() > 0.7 ? 'character' : 'object'
+            });
+        }
+        
+        // Spawn a powerup
+        function spawnPowerup() {
+            const powerupType = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+            const radius = powerupType.radius;
+            const x = radius + Math.random() * (gameWidth - radius * 2);
+            
+            powerups.push({
+                x: x,
+                y: gameHeight + radius,
+                radius: radius,
+                color: powerupType.color,
+                effect: powerupType.effect,
+                duration: powerupType.duration
+            });
+        }
+        
+        // Spawn a bomb
+        function spawnBomb() {
+            const radius = BOMB_TYPE.radius;
+            const x = radius + Math.random() * (gameWidth - radius * 2);
+            
+            bombs.push({
+                x: x,
+                y: gameHeight + radius,
+                radius: radius,
+                color: BOMB_TYPE.color,
+                penalty: BOMB_TYPE.penalty
+            });
+        }
+        
+        // Handle tap/click events
+        function handleTap(e) {
+            if (!isGameRunning) return;
+            
+            // Get tap position
+            let x, y;
+            if (e.type === 'touchstart') {
+                e.preventDefault();
+                x = e.touches[0].clientX;
+                y = e.touches[0].clientY;
+            } else {
+                x = e.clientX;
+                y = e.clientY;
+            }
+            
+            // Check if a target was tapped
+            let targetHit = false;
+            
+            // Check bombs first (highest priority)
+            for (let i = bombs.length - 1; i >= 0; i--) {
+                const bomb = bombs[i];
+                const distance = Math.sqrt((x - bomb.x) ** 2 + (y - bomb.y) ** 2);
+                
+                if (distance <= bomb.radius) {
+                    // Bomb tapped - penalty!
+                    combo = 0;
+                    updateComboDisplay();
+                    score = Math.max(0, score - bomb.penalty);
+                    scoreDisplay.textContent = score;
+                    
+                    // Create explosion particles
+                    createParticles(bomb.x, bomb.y, bomb.color, 30);
+                    
+                    // Remove bomb
+                    bombs.splice(i, 1);
+                    
+                    // Play sound (would be added with actual audio)
+                    return;
+                }
+            }
+            
+            // Check powerups next
+            for (let i = powerups.length - 1; i >= 0; i--) {
+                const powerup = powerups[i];
+                const distance = Math.sqrt((x - powerup.x) ** 2 + (y - powerup.y) ** 2);
+                
+                if (distance <= powerup.radius) {
+                    // Powerup tapped - activate!
+                    activatePowerup(powerup);
+                    
+                    // Create sparkle particles
+                    createParticles(powerup.x, powerup.y, powerup.color, 20);
+                    
+                    // Remove powerup
+                    powerups.splice(i, 1);
+                    
+                    // Play sound (would be added with actual audio)
+                    return;
+                }
+            }
+            
+            // Check regular targets last
+            for (let i = targets.length - 1; i >= 0; i--) {
+                const target = targets[i];
+                const distance = Math.sqrt((x - target.x) ** 2 + (y - target.y) ** 2);
+                
+                if (distance <= target.radius) {
+                    // Target tapped - score!
+                    const pointsEarned = target.score * comboMultiplier;
+                    score += pointsEarned;
+                    scoreDisplay.textContent = score;
+                    
+                    // Increase combo
+                    combo++;
+                    updateComboDisplay();
+                    
+                    // Create particles
+                    createParticles(target.x, target.y, target.color, 15);
+                    
+                    // Remove target
+                    targets.splice(i, 1);
+                    
+                    // Play sound (would be added with actual audio)
+                    targetHit = true;
+                    break;
+                }
+            }
+            
+            if (!targetHit) {
+                // Missed all targets - reset combo
+                combo = 0;
+                updateComboDisplay();
+            }
+        }
+        
+        // Activate a powerup
+        function activatePowerup(powerup) {
+            // Add to active powerups
+            activePowerups[powerup.effect] = {
+                timeLeft: powerup.duration
+            };
+            
+            // Apply effect immediately
+            if (powerup.effect === 'multiplier') {
+                comboMultiplier = 2;
+                powerupIndicator.textContent = '2X Multiplier Active!';
+                powerupIndicator.style.opacity = '1';
+                
+                // Hide after duration
+                setTimeout(() => {
+                    powerupIndicator.style.opacity = '0';
+                }, powerup.duration * 1000 - 300);
+            } else if (powerup.effect === 'slowmo') {
+                // In a real implementation, we'd adjust the game speed
+                powerupIndicator.textContent = 'Slow Motion Active!';
+                powerupIndicator.style.opacity = '1';
+                
+                // Hide after duration
+                setTimeout(() => {
+                    powerupIndicator.style.opacity = '0';
+                }, powerup.duration * 1000 - 300);
+            }
+        }
+        
+        // Create particles for visual feedback
+        function createParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 50 + Math.random() * 150;
+                const size = 3 + Math.random() * 7;
+                const life = 0.5 + Math.random() * 0.5;
+                
+                particles.push({
+                    x: x,
+                    y: y,
+                    size: size,
+                    color: color,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: life,
+                    maxLife: life
+                });
+            }
+        }
+        
+        // Update combo display
+        function updateComboDisplay() {
+            if (combo > 1) {
+                comboDisplay.textContent = `Combo x${combo}`;
+                comboDisplay.style.opacity = '1';
+                
+                // Add some visual flair for bigger combos
+                if (combo >= 5) {
+                    comboDisplay.style.fontSize = '28px';
+                    comboDisplay.style.color = '#FFD700';
+                } else if (combo >= 3) {
+                    comboDisplay.style.fontSize = '24px';
+                    comboDisplay.style.color = '#FF6B6B';
+                } else {
+                    comboDisplay.style.fontSize = '20px';
+                    comboDisplay.style.color = '#FFFFFF';
+                }
+            } else {
+                comboDisplay.style.opacity = '0';
+            }
+        }
+        
+        // Initialize the game when the page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
