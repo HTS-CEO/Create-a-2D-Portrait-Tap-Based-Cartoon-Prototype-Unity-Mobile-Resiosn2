@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bouncy Taps</title>
+    <title>Bouncy Taps Extreme</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -17,7 +19,7 @@
         body {
             overflow: hidden;
             background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
-            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-family: 'Poppins', sans-serif;
             position: fixed;
             width: 100%;
             height: 100%;
@@ -44,30 +46,33 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 36px;
+            font-size: 42px;
             color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
             font-weight: bold;
+            z-index: 5;
         }
         
         #comboDisplay {
             position: absolute;
-            top: 70px;
+            top: 80px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 24px;
+            font-size: 28px;
             color: #FFD700;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
             opacity: 0;
+            z-index: 5;
         }
         
         #timerDisplay {
             position: absolute;
             top: 20px;
             right: 20px;
-            font-size: 28px;
+            font-size: 32px;
             color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            z-index: 5;
         }
         
         #startScreen {
@@ -76,36 +81,39 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.8);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 10;
+            z-index: 20;
         }
         
         #gameTitle {
             color: #FFD700;
-            font-size: 48px;
+            font-size: 64px;
             margin-bottom: 30px;
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8);
             animation: pulse 1.5s infinite;
+            font-family: 'Comic Neue', cursive;
         }
         
-        #startButton {
+        .button {
             background-color: #FF6B6B;
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 24px;
+            padding: 18px 45px;
+            font-size: 28px;
             border-radius: 50px;
             cursor: pointer;
             pointer-events: auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
             transition: transform 0.2s, background-color 0.2s;
+            font-family: 'Poppins', sans-serif;
+            margin: 10px 0;
         }
         
-        #startButton:active {
+        .button:active {
             transform: scale(0.95);
             background-color: #FF5252;
         }
@@ -116,51 +124,26 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.9);
             display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 10;
+            z-index: 20;
         }
         
         #finalScore {
             color: white;
-            font-size: 36px;
-            margin-bottom: 20px;
+            font-size: 48px;
+            margin: 20px 0;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
         }
         
-        #restartButton {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 24px;
-            border-radius: 50px;
-            cursor: pointer;
-            pointer-events: auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            margin-top: 20px;
-            transition: transform 0.2s, background-color 0.2s;
-        }
-        
-        #restartButton:active {
-            transform: scale(0.95);
-            background-color: #388E3C;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .particle {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            pointer-events: none;
+        #highScore {
+            color: #FFD700;
+            font-size: 32px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
         
         .powerup-indicator {
@@ -168,56 +151,156 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 20px;
+            font-size: 24px;
             color: #FFD700;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
             opacity: 0;
             transition: opacity 0.3s;
+            z-index: 5;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 30px;
+        }
+        
+        .tap-effect {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            pointer-events: none;
+            transform: scale(0);
+            z-index: 10;
+        }
+        
+        #comboBar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 5px;
+            background: linear-gradient(to right, #FF6B6B, #FFD700);
+            z-index: 5;
+            transition: width 0.3s;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .character-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .eye {
+            position: absolute;
+            width: 20%;
+            height: 20%;
+            background: white;
+            border-radius: 50%;
+            top: 30%;
+        }
+        
+        .eye.left { left: 20%; }
+        .eye.right { right: 20%; }
+        
+        .pupil {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            background: black;
+            border-radius: 50%;
+            top: 25%;
+            left: 25%;
+        }
+        
+        .mouth {
+            position: absolute;
+            width: 40%;
+            height: 20%;
+            left: 30%;
+            top: 60%;
+            border-bottom-left-radius: 50%;
+            border-bottom-right-radius: 50%;
+            border: 3px solid black;
+            border-top: none;
+        }
+        
+        #instructions {
+            color: white;
+            font-size: 18px;
+            margin-top: 30px;
+            text-align: center;
+            max-width: 80%;
+            line-height: 1.5;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
+    <div id="comboBar"></div>
     
     <div id="uiContainer">
         <div id="scoreDisplay">0</div>
         <div id="comboDisplay">Combo x1</div>
         <div id="timerDisplay">60</div>
-        <div class="powerup-indicator" id="powerupIndicator">2X Multiplier Active!</div>
+        <div class="powerup-indicator" id="powerupIndicator"></div>
     </div>
     
     <div id="startScreen">
         <h1 id="gameTitle">Bouncy Taps!</h1>
-        <button id="startButton">Start Game</button>
+        <button id="startButton" class="button">Start Game</button>
+        <div id="instructions">
+            Tap the bouncing balls to score points!<br>
+            Avoid the bombs 💣 - they reduce your score.<br>
+            Collect powerups for special abilities!
+        </div>
     </div>
     
     <div id="endScreen">
-        <h1>Game Over!</h1>
+        <h1 id="gameTitle">Game Over!</h1>
         <div id="finalScore">Score: 0</div>
-        <button id="restartButton">Play Again</button>
+        <div id="highScore">High Score: 0</div>
+        <button id="restartButton" class="button">Play Again</button>
     </div>
 
     <script>
         // Game constants
         const GAME_DURATION = 60; // 60 seconds
         const TARGET_TYPES = [
-            { color: '#FF6B6B', score: 10, radius: 30 }, // Red
-            { color: '#4CAF50', score: 20, radius: 25 },  // Green
-            { color: '#2196F3', score: 30, radius: 20 },  // Blue
-            { color: '#FFD700', score: 50, radius: 15 }   // Gold
+            { color: '#FF6B6B', score: 10, radius: 35, name: 'Red Ball' }, // Red
+            { color: '#4CAF50', score: 20, radius: 30, name: 'Green Ball' },  // Green
+            { color: '#2196F3', score: 30, radius: 25, name: 'Blue Ball' },  // Blue
+            { color: '#FFD700', score: 50, radius: 20, name: 'Gold Ball' },   // Gold
+            { color: '#9C27B0', score: 75, radius: 25, name: 'Purple Ball' }  // Purple
         ];
         
         const POWERUP_TYPES = [
-            { color: '#9C27B0', radius: 20, effect: 'multiplier', duration: 10 }, // Purple
-            { color: '#FF9800', radius: 20, effect: 'slowmo', duration: 5 }       // Orange
+            { color: '#FF5722', radius: 25, effect: 'multiplier', duration: 10, name: '2X Multiplier' }, // Orange
+            { color: '#00BCD4', radius: 25, effect: 'slowmo', duration: 8, name: 'Slow Motion' },       // Cyan
+            { color: '#8BC34A', radius: 25, effect: 'magnet', duration: 12, name: 'Score Magnet' },     // Light Green
+            { color: '#E91E63', radius: 25, effect: 'explosive', duration: 0, name: 'Explosive Tap' }   // Pink
         ];
         
-        const BOMB_TYPE = { color: '#333333', radius: 25, penalty: 5 }; // Black
+        const BOMB_TYPE = { color: '#333333', radius: 30, penalty: 10, name: 'Bomb' }; // Black
         
         // Game variables
         let canvas, ctx;
         let gameWidth, gameHeight;
         let score = 0;
+        let highScore = localStorage.getItem('highScore') || 0;
         let combo = 0;
         let comboMultiplier = 1;
         let gameTime = GAME_DURATION;
@@ -231,11 +314,17 @@
         let bombs = [];
         let activePowerups = {};
         let particles = [];
+        let tapEffects = [];
+        let globalSpeed = 1.0;
+        let magnetRadius = 0;
+        let lastTapTime = 0;
+        let tapStreak = 0;
         
         // DOM elements
         let scoreDisplay, comboDisplay, timerDisplay;
         let startScreen, endScreen, startButton, restartButton;
-        let finalScoreDisplay, powerupIndicator;
+        let finalScoreDisplay, highScoreDisplay, powerupIndicator;
+        let comboBar;
         
         // Initialize the game
         function init() {
@@ -251,17 +340,22 @@
             startButton = document.getElementById('startButton');
             restartButton = document.getElementById('restartButton');
             finalScoreDisplay = document.getElementById('finalScore');
+            highScoreDisplay = document.getElementById('highScore');
             powerupIndicator = document.getElementById('powerupIndicator');
+            comboBar = document.getElementById('comboBar');
             
             // Set up event listeners
             startButton.addEventListener('click', startGame);
             restartButton.addEventListener('click', restartGame);
-            canvas.addEventListener('touchstart', handleTap);
+            canvas.addEventListener('touchstart', handleTap, { passive: false });
             canvas.addEventListener('mousedown', handleTap);
             
             // Handle window resize
             window.addEventListener('resize', resizeCanvas);
             resizeCanvas();
+            
+            // Update high score display
+            highScoreDisplay.textContent = `High Score: ${highScore}`;
         }
         
         // Resize canvas to fit window
@@ -290,11 +384,16 @@
             bombs = [];
             activePowerups = {};
             particles = [];
+            tapEffects = [];
+            globalSpeed = 1.0;
+            magnetRadius = 0;
+            tapStreak = 0;
             
             // Update UI
             scoreDisplay.textContent = '0';
             comboDisplay.style.opacity = '0';
             timerDisplay.textContent = gameTime;
+            comboBar.style.width = '0%';
             
             // Hide start screen
             startScreen.style.display = 'none';
@@ -317,6 +416,15 @@
             isGameRunning = false;
             cancelAnimationFrame(animationFrameId);
             
+            // Update high score
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('highScore', highScore);
+                highScoreDisplay.textContent = `New High Score: ${highScore}`;
+            } else {
+                highScoreDisplay.textContent = `High Score: ${highScore}`;
+            }
+            
             // Show end screen
             finalScoreDisplay.textContent = `Score: ${score}`;
             endScreen.style.display = 'flex';
@@ -326,12 +434,12 @@
         function gameLoop(timestamp) {
             if (!isGameRunning) return;
             
-            // Calculate delta time
+            // Calculate delta time (adjusted for slow motion)
             const deltaTime = (timestamp - lastTime) / 1000;
             lastTime = timestamp;
             
             // Update game state
-            update(deltaTime);
+            update(deltaTime * globalSpeed);
             
             // Draw everything
             draw();
@@ -352,9 +460,10 @@
                 return;
             }
             
-            // Spawn new targets
+            // Spawn new targets with increasing frequency as game progresses
             timeSinceLastSpawn += deltaTime;
-            if (timeSinceLastSpawn >= spawnInterval) {
+            const spawnRate = 0.3 + (0.7 * (gameTime / GAME_DURATION));
+            if (timeSinceLastSpawn >= spawnInterval * spawnRate) {
                 spawnObject();
                 timeSinceLastSpawn = 0;
                 
@@ -372,6 +481,19 @@
                 // Update position
                 target.x += target.velocityX * deltaTime;
                 target.y += target.velocityY * deltaTime;
+                
+                // Apply magnet effect if active
+                if (magnetRadius > 0 && target.type !== 'bomb') {
+                    const dx = gameWidth/2 - target.x;
+                    const dy = (gameHeight/3) - target.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (distance < magnetRadius) {
+                        const force = (magnetRadius - distance) / magnetRadius * 500;
+                        target.velocityX += (dx / distance) * force * deltaTime;
+                        target.velocityY += (dy / distance) * force * deltaTime;
+                    }
+                }
                 
                 // Bounce off walls
                 if (target.x - target.radius < 0 || target.x + target.radius > gameWidth) {
@@ -406,6 +528,19 @@
                 // Float upward
                 powerup.y -= 50 * deltaTime;
                 
+                // Apply magnet effect if active
+                if (magnetRadius > 0) {
+                    const dx = gameWidth/2 - powerup.x;
+                    const dy = (gameHeight/3) - powerup.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (distance < magnetRadius * 1.5) {
+                        const force = (magnetRadius * 1.5 - distance) / (magnetRadius * 1.5) * 400;
+                        powerup.x += (dx / distance) * force * deltaTime;
+                        powerup.y += (dy / distance) * force * deltaTime;
+                    }
+                }
+                
                 // Remove if off screen
                 if (powerup.y + powerup.radius < 0) {
                     powerups.splice(i, 1);
@@ -438,7 +573,11 @@
                         comboMultiplier = 1;
                         powerupIndicator.style.opacity = '0';
                     } else if (effect === 'slowmo') {
-                        // Reset to normal speed
+                        globalSpeed = 1.0;
+                        powerupIndicator.style.opacity = '0';
+                    } else if (effect === 'magnet') {
+                        magnetRadius = 0;
+                        powerupIndicator.style.opacity = '0';
                     }
                 }
             }
@@ -449,11 +588,28 @@
                 
                 particle.x += particle.vx * deltaTime;
                 particle.y += particle.vy * deltaTime;
+                particle.vy += particle.gravity * deltaTime;
                 particle.life -= deltaTime;
                 
                 if (particle.life <= 0) {
                     particles.splice(i, 1);
                 }
+            }
+            
+            // Update tap effects
+            for (let i = tapEffects.length - 1; i >= 0; i--) {
+                const effect = tapEffects[i];
+                effect.life -= deltaTime;
+                
+                if (effect.life <= 0) {
+                    tapEffects.splice(i, 1);
+                }
+            }
+            
+            // Update combo streak (time between taps)
+            const timeSinceLastTap = (performance.now() - lastTapTime) / 1000;
+            if (timeSinceLastTap > 0.5) {
+                tapStreak = 0;
             }
         }
         
@@ -468,6 +624,17 @@
             bgGradient.addColorStop(1, '#E0F7FA');
             ctx.fillStyle = bgGradient;
             ctx.fillRect(0, 0, gameWidth, gameHeight);
+            
+            // Draw magnet area if active
+            if (magnetRadius > 0) {
+                ctx.beginPath();
+                ctx.arc(gameWidth/2, gameHeight/3, magnetRadius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(139, 195, 74, 0.2)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(139, 195, 74, 0.5)';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
             
             // Draw targets
             targets.forEach(target => {
@@ -486,7 +653,24 @@
                 // Draw main circle
                 ctx.beginPath();
                 ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2);
-                ctx.fillStyle = target.color;
+                
+                // Special gradient for gold targets
+                if (target.color === '#FFD700') {
+                    const gradient = ctx.createRadialGradient(
+                        target.x - target.radius * 0.3, 
+                        target.y - target.radius * 0.3, 
+                        target.radius * 0.1, 
+                        target.x, 
+                        target.y, 
+                        target.radius
+                    );
+                    gradient.addColorStop(0, '#FFEB3B');
+                    gradient.addColorStop(1, '#FFC107');
+                    ctx.fillStyle = gradient;
+                } else {
+                    ctx.fillStyle = target.color;
+                }
+                
                 ctx.fill();
                 
                 // Draw highlight
@@ -494,7 +678,7 @@
                 ctx.arc(
                     target.x - target.radius * 0.3, 
                     target.y - target.radius * 0.3, 
-                    target.radius * 0.2, 
+                    target.radius * 0.15, 
                     0, Math.PI * 2
                 );
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
@@ -507,13 +691,13 @@
                     ctx.arc(
                         target.x - target.radius * 0.3, 
                         target.y - target.radius * 0.1, 
-                        target.radius * 0.1, 
+                        target.radius * 0.15, 
                         0, Math.PI * 2
                     );
                     ctx.arc(
                         target.x + target.radius * 0.3, 
                         target.y - target.radius * 0.1, 
-                        target.radius * 0.1, 
+                        target.radius * 0.15, 
                         0, Math.PI * 2
                     );
                     ctx.fillStyle = 'white';
@@ -524,13 +708,13 @@
                     ctx.arc(
                         target.x - target.radius * 0.3, 
                         target.y - target.radius * 0.1, 
-                        target.radius * 0.05, 
+                        target.radius * 0.07, 
                         0, Math.PI * 2
                     );
                     ctx.arc(
                         target.x + target.radius * 0.3, 
                         target.y - target.radius * 0.1, 
-                        target.radius * 0.05, 
+                        target.radius * 0.07, 
                         0, Math.PI * 2
                     );
                     ctx.fillStyle = 'black';
@@ -541,17 +725,38 @@
                     ctx.arc(
                         target.x, 
                         target.y + target.radius * 0.2, 
-                        target.radius * 0.3, 
+                        target.radius * 0.4, 
                         0, Math.PI
                     );
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 3;
                     ctx.strokeStyle = 'black';
                     ctx.stroke();
+                }
+                
+                // Draw score value for small targets
+                if (target.radius <= 25) {
+                    ctx.fillStyle = 'white';
+                    ctx.font = `bold ${target.radius * 0.7}px Poppins`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(target.score, target.x, target.y);
                 }
             });
             
             // Draw powerups
             powerups.forEach(powerup => {
+                // Draw glow effect
+                ctx.beginPath();
+                ctx.arc(powerup.x, powerup.y, powerup.radius * 1.3, 0, Math.PI * 2);
+                const glowGradient = ctx.createRadialGradient(
+                    powerup.x, powerup.y, powerup.radius * 0.5,
+                    powerup.x, powerup.y, powerup.radius * 1.3
+                );
+                glowGradient.addColorStop(0, powerup.color);
+                glowGradient.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = glowGradient;
+                ctx.fill();
+                
                 // Draw main circle
                 ctx.beginPath();
                 ctx.arc(powerup.x, powerup.y, powerup.radius, 0, Math.PI * 2);
@@ -571,7 +776,7 @@
                 
                 // Draw icon based on powerup type
                 ctx.fillStyle = 'white';
-                ctx.font = `${powerup.radius * 1.2}px Arial`;
+                ctx.font = `bold ${powerup.radius * 1.2}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 
@@ -579,11 +784,24 @@
                     ctx.fillText('2X', powerup.x, powerup.y);
                 } else if (powerup.effect === 'slowmo') {
                     ctx.fillText('⌛', powerup.x, powerup.y);
+                } else if (powerup.effect === 'magnet') {
+                    ctx.fillText('🧲', powerup.x, powerup.y);
+                } else if (powerup.effect === 'explosive') {
+                    ctx.fillText('💥', powerup.x, powerup.y);
                 }
             });
             
             // Draw bombs
             bombs.forEach(bomb => {
+                // Draw explosion warning for bombs about to explode
+                if (bomb.timeLeft && bomb.timeLeft < 1.5) {
+                    const pulse = (1 + Math.sin(performance.now() / 100)) * 0.2 + 0.8;
+                    ctx.beginPath();
+                    ctx.arc(bomb.x, bomb.y, bomb.radius * 1.5 * pulse, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 0, 0, ${0.3 * pulse})`;
+                    ctx.fill();
+                }
+                
                 // Draw main circle
                 ctx.beginPath();
                 ctx.arc(bomb.x, bomb.y, bomb.radius, 0, Math.PI * 2);
@@ -594,13 +812,21 @@
                 ctx.beginPath();
                 ctx.moveTo(bomb.x + bomb.radius * 0.7, bomb.y - bomb.radius * 0.7);
                 ctx.lineTo(bomb.x + bomb.radius * 1.2, bomb.y - bomb.radius * 1.2);
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 3;
                 ctx.strokeStyle = '#795548';
                 ctx.stroke();
                 
+                // Draw spark at end of fuse
+                if (Math.random() > 0.7) {
+                    ctx.beginPath();
+                    ctx.arc(bomb.x + bomb.radius * 1.2, bomb.y - bomb.radius * 1.2, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = '#FF9800';
+                    ctx.fill();
+                }
+                
                 // Draw danger symbol
                 ctx.fillStyle = 'white';
-                ctx.font = `${bomb.radius * 0.8}px Arial`;
+                ctx.font = `${bomb.radius}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText('💣', bomb.x, bomb.y);
@@ -610,25 +836,48 @@
             particles.forEach(particle => {
                 ctx.beginPath();
                 ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-                ctx.fillStyle = particle.color;
+                
+                // Special effects for different particle types
+                if (particle.type === 'explosion') {
+                    const gradient = ctx.createRadialGradient(
+                        particle.x, particle.y, 0,
+                        particle.x, particle.y, particle.size
+                    );
+                    gradient.addColorStop(0, particle.color);
+                    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+                    ctx.fillStyle = gradient;
+                } else {
+                    ctx.fillStyle = particle.color;
+                }
+                
                 ctx.globalAlpha = particle.life / particle.maxLife;
                 ctx.fill();
                 ctx.globalAlpha = 1;
+            });
+            
+            // Draw tap effects
+            tapEffects.forEach(effect => {
+                ctx.beginPath();
+                ctx.arc(effect.x, effect.y, effect.size * (1 - effect.life / effect.maxLife), 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(255, 255, 255, ${effect.life / effect.maxLife * 0.6})`;
+                ctx.lineWidth = 3;
+                ctx.stroke();
             });
         }
         
         // Spawn a new target, powerup, or bomb
         function spawnObject() {
             const spawnChance = Math.random();
+            const difficulty = 1 - (gameTime / GAME_DURATION); // 0 to 1
             
-            if (spawnChance < 0.05) {
-                // Spawn a bomb (5% chance)
+            if (spawnChance < 0.05 + (difficulty * 0.05)) {
+                // Spawn a bomb (5-10% chance)
                 spawnBomb();
-            } else if (spawnChance < 0.15) {
-                // Spawn a powerup (10% chance)
+            } else if (spawnChance < 0.15 + (difficulty * 0.1)) {
+                // Spawn a powerup (15-25% chance)
                 spawnPowerup();
             } else {
-                // Spawn a regular target (85% chance)
+                // Spawn a regular target (65-80% chance)
                 spawnTarget();
             }
         }
@@ -645,8 +894,9 @@
                 radius: radius,
                 color: targetType.color,
                 score: targetType.score,
-                velocityX: -100 + Math.random() * 200,
-                velocityY: -400 - Math.random() * 200,
+                name: targetType.name,
+                velocityX: -150 + Math.random() * 300,
+                velocityY: -500 - Math.random() * 300,
                 bounces: 2 + Math.floor(Math.random() * 3),
                 type: Math.random() > 0.7 ? 'character' : 'object'
             });
@@ -664,7 +914,8 @@
                 radius: radius,
                 color: powerupType.color,
                 effect: powerupType.effect,
-                duration: powerupType.duration
+                duration: powerupType.duration,
+                name: powerupType.name
             });
         }
         
@@ -673,23 +924,60 @@
             const radius = BOMB_TYPE.radius;
             const x = radius + Math.random() * (gameWidth - radius * 2);
             
-            bombs.push({
+            const bomb = {
                 x: x,
                 y: gameHeight + radius,
                 radius: radius,
                 color: BOMB_TYPE.color,
-                penalty: BOMB_TYPE.penalty
-            });
+                penalty: BOMB_TYPE.penalty,
+                name: BOMB_TYPE.name,
+                timeLeft: 3 + Math.random() * 4 // Time until auto-explode
+            };
+            
+            bombs.push(bomb);
+            
+            // Auto-explode after timeLeft
+            setTimeout(() => {
+                if (isGameRunning && bombs.includes(bomb)) {
+                    explodeBomb(bomb);
+                }
+            }, bomb.timeLeft * 1000);
+        }
+        
+        // Handle bomb explosion
+        function explodeBomb(bomb) {
+            const index = bombs.indexOf(bomb);
+            if (index !== -1) {
+                // Create big explosion
+                createParticles(bomb.x, bomb.y, '#FF5722', 50, true);
+                
+                // Check if any targets are in explosion radius
+                const explosionRadius = bomb.radius * 4;
+                targets.forEach(target => {
+                    const distance = Math.sqrt((bomb.x - target.x) ** 2 + (bomb.y - target.y) ** 2);
+                    if (distance < explosionRadius) {
+                        // Push targets away from explosion
+                        const angle = Math.atan2(target.y - bomb.y, target.x - bomb.x);
+                        const force = (explosionRadius - distance) / explosionRadius * 800;
+                        target.velocityX += Math.cos(angle) * force;
+                        target.velocityY += Math.sin(angle) * force;
+                    }
+                });
+                
+                // Remove bomb
+                bombs.splice(index, 1);
+            }
         }
         
         // Handle tap/click events
         function handleTap(e) {
             if (!isGameRunning) return;
             
+            e.preventDefault();
+            
             // Get tap position
             let x, y;
             if (e.type === 'touchstart') {
-                e.preventDefault();
                 x = e.touches[0].clientX;
                 y = e.touches[0].clientY;
             } else {
@@ -697,8 +985,26 @@
                 y = e.clientY;
             }
             
+            // Create tap effect
+            createTapEffect(x, y);
+            
+            // Update tap streak
+            const now = performance.now();
+            if (now - lastTapTime < 500) { // Half second between taps
+                tapStreak++;
+            } else {
+                tapStreak = 1;
+            }
+            lastTapTime = now;
+            
             // Check if a target was tapped
             let targetHit = false;
+            
+            // Check for explosive tap powerup first
+            if (activePowerups['explosive']) {
+                explosiveTap(x, y);
+                return;
+            }
             
             // Check bombs first (highest priority)
             for (let i = bombs.length - 1; i >= 0; i--) {
@@ -713,12 +1019,13 @@
                     scoreDisplay.textContent = score;
                     
                     // Create explosion particles
-                    createParticles(bomb.x, bomb.y, bomb.color, 30);
+                    createParticles(bomb.x, bomb.y, '#FF5722', 30, true);
                     
                     // Remove bomb
                     bombs.splice(i, 1);
                     
-                    // Play sound (would be added with actual audio)
+                    // Vibrate if supported
+                    if (navigator.vibrate) navigator.vibrate(100);
                     return;
                 }
             }
@@ -733,12 +1040,17 @@
                     activatePowerup(powerup);
                     
                     // Create sparkle particles
-                    createParticles(powerup.x, powerup.y, powerup.color, 20);
+                    createParticles(powerup.x, powerup.y, powerup.color, 25);
                     
                     // Remove powerup
                     powerups.splice(i, 1);
                     
-                    // Play sound (would be added with actual audio)
+                    // Add to combo
+                    combo++;
+                    updateComboDisplay();
+                    
+                    // Vibrate if supported
+                    if (navigator.vibrate) navigator.vibrate(50);
                     return;
                 }
             }
@@ -750,8 +1062,8 @@
                 
                 if (distance <= target.radius) {
                     // Target tapped - score!
-                    const pointsEarned = target.score * comboMultiplier;
-                    score += pointsEarned;
+                    const pointsEarned = target.score * comboMultiplier * (1 + tapStreak * 0.1);
+                    score += Math.floor(pointsEarned);
                     scoreDisplay.textContent = score;
                     
                     // Increase combo
@@ -759,12 +1071,19 @@
                     updateComboDisplay();
                     
                     // Create particles
-                    createParticles(target.x, target.y, target.color, 15);
+                    createParticles(target.x, target.y, target.color, 20);
+                    
+                    // Special effect for high combos
+                    if (combo >= 10) {
+                        createParticles(target.x, target.y, '#FFD700', 10);
+                    }
                     
                     // Remove target
                     targets.splice(i, 1);
                     
-                    // Play sound (would be added with actual audio)
+                    // Vibrate if supported (shorter vibration)
+                    if (navigator.vibrate) navigator.vibrate(30);
+                    
                     targetHit = true;
                     break;
                 }
@@ -774,45 +1093,159 @@
                 // Missed all targets - reset combo
                 combo = 0;
                 updateComboDisplay();
+                
+                // Vibrate if supported (very short vibration)
+                if (navigator.vibrate) navigator.vibrate(20);
             }
+        }
+        
+        // Handle explosive tap powerup
+        function explosiveTap(x, y) {
+            const explosionRadius = 150;
+            let hitCount = 0;
+            
+            // Check targets in explosion radius
+            for (let i = targets.length - 1; i >= 0; i--) {
+                const target = targets[i];
+                const distance = Math.sqrt((x - target.x) ** 2 + (y - target.y) ** 2);
+                
+                if (distance <= explosionRadius) {
+                    // Target in explosion - score!
+                    const pointsEarned = target.score * comboMultiplier;
+                    score += pointsEarned;
+                    hitCount++;
+                    
+                    // Push targets away from center
+                    const angle = Math.atan2(target.y - y, target.x - x);
+                    const force = (explosionRadius - distance) / explosionRadius * 1000;
+                    target.velocityX += Math.cos(angle) * force;
+                    target.velocityY += Math.sin(angle) * force;
+                    
+                    // Create particles
+                    createParticles(target.x, target.y, target.color, 10);
+                }
+            }
+            
+            // Check bombs in explosion radius
+            for (let i = bombs.length - 1; i >= 0; i--) {
+                const bomb = bombs[i];
+                const distance = Math.sqrt((x - bomb.x) ** 2 + (y - bomb.y) ** 2);
+                
+                if (distance <= explosionRadius) {
+                    // Bomb in explosion - explode it!
+                    explodeBomb(bomb);
+                    hitCount++;
+                }
+            }
+            
+            // Check powerups in explosion radius
+            for (let i = powerups.length - 1; i >= 0; i--) {
+                const powerup = powerups[i];
+                const distance = Math.sqrt((x - powerup.x) ** 2 + (y - powerup.y) ** 2);
+                
+                if (distance <= explosionRadius) {
+                    // Powerup in explosion - activate it!
+                    activatePowerup(powerup);
+                    powerups.splice(i, 1);
+                    hitCount++;
+                }
+            }
+            
+            // Create big explosion effect
+            createParticles(x, y, '#FF5722', 40, true);
+            
+            // Update score display if anything was hit
+            if (hitCount > 0) {
+                scoreDisplay.textContent = score;
+                combo += hitCount;
+                updateComboDisplay();
+                
+                // Long vibration for big explosion
+                if (navigator.vibrate) navigator.vibrate(200);
+            } else {
+                // Short vibration for miss
+                if (navigator.vibrate) navigator.vibrate(50);
+            }
+        }
+        
+        // Create tap visual effect
+        function createTapEffect(x, y) {
+            const effect = {
+                x: x,
+                y: y,
+                size: 30 + Math.random() * 30,
+                life: 0.4,
+                maxLife: 0.4
+            };
+            
+            tapEffects.push(effect);
         }
         
         // Activate a powerup
         function activatePowerup(powerup) {
             // Add to active powerups
             activePowerups[powerup.effect] = {
-                timeLeft: powerup.duration
+                timeLeft: powerup.duration,
+                name: powerup.name
             };
+            
+            // Show powerup indicator
+            powerupIndicator.textContent = `${powerup.name} Active!`;
+            powerupIndicator.style.opacity = '1';
             
             // Apply effect immediately
             if (powerup.effect === 'multiplier') {
                 comboMultiplier = 2;
-                powerupIndicator.textContent = '2X Multiplier Active!';
-                powerupIndicator.style.opacity = '1';
                 
                 // Hide after duration
                 setTimeout(() => {
-                    powerupIndicator.style.opacity = '0';
+                    if (!activePowerups['multiplier']) {
+                        powerupIndicator.style.opacity = '0';
+                    }
                 }, powerup.duration * 1000 - 300);
             } else if (powerup.effect === 'slowmo') {
-                // In a real implementation, we'd adjust the game speed
-                powerupIndicator.textContent = 'Slow Motion Active!';
-                powerupIndicator.style.opacity = '1';
+                globalSpeed = 0.5;
                 
                 // Hide after duration
                 setTimeout(() => {
-                    powerupIndicator.style.opacity = '0';
+                    if (!activePowerups['slowmo']) {
+                        powerupIndicator.style.opacity = '0';
+                    }
                 }, powerup.duration * 1000 - 300);
+            } else if (powerup.effect === 'magnet') {
+                magnetRadius = 200;
+                
+                // Hide after duration
+                setTimeout(() => {
+                    if (!activePowerups['magnet']) {
+                        powerupIndicator.style.opacity = '0';
+                    }
+                }, powerup.duration * 1000 - 300);
+            } else if (powerup.effect === 'explosive') {
+                // One-time effect, no duration
+                powerupIndicator.textContent = 'Explosive Taps Active!';
+                setTimeout(() => {
+                    powerupIndicator.style.opacity = '0';
+                }, 2000);
             }
+            
+            // Create activation particles
+            createParticles(powerup.x, powerup.y, powerup.color, 30);
         }
         
         // Create particles for visual feedback
-        function createParticles(x, y, color, count) {
+        function createParticles(x, y, color, count, isExplosion = false) {
             for (let i = 0; i < count; i++) {
                 const angle = Math.random() * Math.PI * 2;
-                const speed = 50 + Math.random() * 150;
-                const size = 3 + Math.random() * 7;
-                const life = 0.5 + Math.random() * 0.5;
+                const speed = isExplosion ? 
+                    (50 + Math.random() * 300) * (0.5 + Math.random()) : 
+                    (50 + Math.random() * 150);
+                const size = isExplosion ? 
+                    (5 + Math.random() * 15) : 
+                    (3 + Math.random() * 7);
+                const life = isExplosion ? 
+                    (0.7 + Math.random() * 0.8) : 
+                    (0.5 + Math.random() * 0.5);
                 
                 particles.push({
                     x: x,
@@ -821,8 +1254,10 @@
                     color: color,
                     vx: Math.cos(angle) * speed,
                     vy: Math.sin(angle) * speed,
+                    gravity: isExplosion ? -100 : 100,
                     life: life,
-                    maxLife: life
+                    maxLife: life,
+                    type: isExplosion ? 'explosion' : 'normal'
                 });
             }
         }
@@ -833,19 +1268,35 @@
                 comboDisplay.textContent = `Combo x${combo}`;
                 comboDisplay.style.opacity = '1';
                 
+                // Update combo bar
+                const comboPercentage = Math.min(100, (combo / 15) * 100);
+                comboBar.style.width = `${comboPercentage}%`;
+                
                 // Add some visual flair for bigger combos
-                if (combo >= 5) {
-                    comboDisplay.style.fontSize = '28px';
+                if (combo >= 10) {
+                    comboDisplay.style.fontSize = '36px';
                     comboDisplay.style.color = '#FFD700';
-                } else if (combo >= 3) {
-                    comboDisplay.style.fontSize = '24px';
+                    comboDisplay.style.textShadow = '0 0 10px #FFD700';
+                } else if (combo >= 5) {
+                    comboDisplay.style.fontSize = '32px';
                     comboDisplay.style.color = '#FF6B6B';
+                    comboDisplay.style.textShadow = '0 0 8px #FF6B6B';
                 } else {
-                    comboDisplay.style.fontSize = '20px';
+                    comboDisplay.style.fontSize = '28px';
                     comboDisplay.style.color = '#FFFFFF';
+                    comboDisplay.style.textShadow = '2px 2px 4px rgba(0, 0, 0, 0.7)';
                 }
+                
+                // Animate combo text
+                gsap.to(comboDisplay, {
+                    scale: 1.2,
+                    duration: 0.1,
+                    yoyo: true,
+                    repeat: 1
+                });
             } else {
                 comboDisplay.style.opacity = '0';
+                comboBar.style.width = '0%';
             }
         }
         
